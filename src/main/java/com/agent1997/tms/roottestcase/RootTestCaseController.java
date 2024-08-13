@@ -40,7 +40,8 @@ public class RootTestCaseController {
     @GetMapping
     private Page<RootTestCaseEntity> getPageableTestCases(Pageable pageable){
         return rootTestCaseRepository.findAll(pageable);
-
     }
 
+//    TODO Implement update and delete test cases
+//    TODO Move logic to service class
 }
