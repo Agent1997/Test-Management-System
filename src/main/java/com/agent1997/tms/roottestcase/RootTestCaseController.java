@@ -2,12 +2,13 @@ package com.agent1997.tms.roottestcase;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -34,6 +35,12 @@ public class RootTestCaseController {
         Optional<RootTestCaseEntity> testCaseQueryResult = rootTestCaseRepository.findById(id);
         return testCaseQueryResult.map(rootTestCaseEntity -> new ResponseEntity<>(rootTestCaseEntity,
                 HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping
+    private Page<RootTestCaseEntity> getPageableTestCases(Pageable pageable){
+        return rootTestCaseRepository.findAll(pageable);
+
     }
 
 }

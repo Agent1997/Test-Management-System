@@ -1,9 +1,6 @@
 package com.agent1997.tms.roottestcase;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,21 +19,12 @@ public class RootTestCaseEntity {
     @UuidGenerator
     private String id;
 
-    @NotNull
-    @NotEmpty
-    @NotBlank
     private String title;
 
     private String description;
 
-    @NotNull
-    @NotEmpty
-    @NotBlank
     private String testSteps;
 
-    @NotNull
-    @NotEmpty
-    @NotBlank
     private String expectedBehavior;
 
     private String notes;
