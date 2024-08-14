@@ -19,17 +19,12 @@ import java.util.Optional;
 public class RootTestCaseController {
 
     private final RootTestCaseRepository rootTestCaseRepository;
+    private final RootTestCaseService rootTestCaseService;
 
     @PostMapping
-    private ResponseEntity<RootTestCaseEntity> createATestCase(@RequestBody RootTestCaseRequestDTO rootTestCaseRequestDTO){
-        RootTestCaseEntity rootTestCaseEntity = new RootTestCaseEntity();
-        rootTestCaseEntity.setTitle(rootTestCaseRequestDTO.getTitle());
-        rootTestCaseEntity.setDescription(rootTestCaseRequestDTO.getDescription());
-        rootTestCaseEntity.setTestSteps(rootTestCaseRequestDTO.getTestSteps());
-        rootTestCaseEntity.setExpectedBehavior(rootTestCaseRequestDTO.getExpectedBehavior());
-        rootTestCaseEntity.setNotes(rootTestCaseRequestDTO.getNotes());
-        RootTestCaseEntity saveRootTestCase = rootTestCaseRepository.save(rootTestCaseEntity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saveRootTestCase);
+    private ResponseEntity<RootTestCaseEntity> handleCreateATestCaseRequest(@RequestBody RootTestCaseRequestDTO rootTestCaseRequestDTO){
+        RootTestCaseEntity createdTestCase = rootTestCaseService.createATestCase(rootTestCaseRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTestCase);
     }
 
     @GetMapping("/{id}")
