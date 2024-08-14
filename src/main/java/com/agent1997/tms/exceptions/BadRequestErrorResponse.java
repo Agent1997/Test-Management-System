@@ -7,14 +7,17 @@ import java.time.LocalDateTime;
 
 @Getter
 public class BadRequestErrorResponse{
-    private final LocalDateTime timestamp = LocalDateTime.now();
-    private final Integer statusCode = HttpStatus.BAD_REQUEST.value();
-    private final String reason = HttpStatus.BAD_REQUEST.getReasonPhrase();
-    private final String message ="Bad request. Please refer to the API specification for proper request.";
+    private final LocalDateTime timestamp ;
+    private final Integer statusCode;
+    private final String reason;
+    private final String message;
     private final String logId;
 
     public BadRequestErrorResponse(String logId) {
+        this.timestamp = LocalDateTime.now();
+        this.statusCode = HttpStatus.BAD_REQUEST.value();
+        this.reason = HttpStatus.BAD_REQUEST.getReasonPhrase();
+        this.message = "Bad request. Please refer to the API specification for proper request.";
         this.logId = logId;
-
     }
 }
