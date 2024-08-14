@@ -42,6 +42,19 @@ public class RootTestCaseController {
         return rootTestCaseRepository.findAll(pageable);
     }
 
+    @PutMapping("/{id}")
+    private ResponseEntity<RootTestCaseEntity> updateTestCase(@PathVariable String id, @RequestBody RootTestCaseRequestDTO rootTestCaseRequestDTO){
+        RootTestCaseEntity rootTestCaseEntity = new RootTestCaseEntity();
+        rootTestCaseEntity.setId(id);
+        rootTestCaseEntity.setTitle(rootTestCaseRequestDTO.getTitle());
+        rootTestCaseEntity.setDescription(rootTestCaseRequestDTO.getDescription());
+        rootTestCaseEntity.setTestSteps(rootTestCaseRequestDTO.getTestSteps());
+        rootTestCaseEntity.setExpectedBehavior(rootTestCaseRequestDTO.getExpectedBehavior());
+        rootTestCaseEntity.setNotes(rootTestCaseRequestDTO.getNotes());
+        RootTestCaseEntity updatedTestCase = rootTestCaseRepository.save(rootTestCaseEntity);
+        return ResponseEntity.ok(updatedTestCase);
+    }
+
 //    TODO Implement update and delete test cases
 //    TODO Move logic to service class
 }
