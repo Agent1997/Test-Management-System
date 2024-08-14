@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -55,6 +57,36 @@ public class RootTestCaseController {
         return ResponseEntity.ok(updatedTestCase);
     }
 
-//    TODO Implement update and delete test cases
-//    TODO Move logic to service class
+    @DeleteMapping("/{id}")
+    private ResponseEntity<Void> deleteTestCase(@PathVariable String id){
+        if (rootTestCaseRepository.existsById(id)) {
+            rootTestCaseRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping
+    private ResponseEntity<?> bulkDeleteTestCases(@RequestBody List<String> ids){
+        List<String> existingIds = rootTestCaseRepository.findAllById(ids)
+                        .stream()
+                                .map(RootTestCaseEntity::getId)
+                                        .toList();
+        List<String> nonExistingIds = ids.stream()
+                        .filter(id -> !existingIds.contains(id))
+                                .toList();
+
+        rootTestCaseRepository.deleteAllByIdInBatch(existingIds);
+
+        HashMap<String, List<String>> responseBody = new HashMap<>();
+        responseBody.put("successfullyDeletedIds", existingIds);
+        responseBody.put("nonExistingIds", nonExistingIds);
+
+        if (nonExistingIds.isEmpty()){
+            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+        }
+    }
 }
