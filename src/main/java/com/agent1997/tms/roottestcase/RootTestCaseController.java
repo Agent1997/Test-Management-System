@@ -19,7 +19,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class RootTestCaseController {
 
-    private final RootTestCaseRepository rootTestCaseRepository;
     private final RootTestCaseService rootTestCaseService;
 
     @PostMapping
@@ -37,53 +36,28 @@ public class RootTestCaseController {
     }
 
     @GetMapping
-    private Page<RootTestCaseEntity> getPageableTestCases(Pageable pageable){
-        return rootTestCaseRepository.findAll(pageable);
+    private Page<RootTestCaseEntity> handleGetPageableTestCasesRequest(Pageable pageable){
+        return rootTestCaseService.getPageableTestCases(pageable);
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<RootTestCaseEntity> updateTestCase(@PathVariable String id, @RequestBody RootTestCaseRequestDTO rootTestCaseRequestDTO){
-        RootTestCaseEntity rootTestCaseEntity = new RootTestCaseEntity();
-        rootTestCaseEntity.setId(id);
-        rootTestCaseEntity.setTitle(rootTestCaseRequestDTO.getTitle());
-        rootTestCaseEntity.setDescription(rootTestCaseRequestDTO.getDescription());
-        rootTestCaseEntity.setTestSteps(rootTestCaseRequestDTO.getTestSteps());
-        rootTestCaseEntity.setExpectedBehavior(rootTestCaseRequestDTO.getExpectedBehavior());
-        rootTestCaseEntity.setNotes(rootTestCaseRequestDTO.getNotes());
-        RootTestCaseEntity updatedTestCase = rootTestCaseRepository.save(rootTestCaseEntity);
+    private ResponseEntity<RootTestCaseEntity> handleUpdateTestCaseRequest(@PathVariable String id, @RequestBody RootTestCaseRequestDTO rootTestCaseRequestDTO){
+        RootTestCaseEntity updatedTestCase = rootTestCaseService.updateTestCase(id, rootTestCaseRequestDTO);
         return ResponseEntity.ok(updatedTestCase);
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<Void> deleteTestCase(@PathVariable String id){
-        if (rootTestCaseRepository.existsById(id)) {
-            rootTestCaseRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    private ResponseEntity<Void> handleDeleteTestCaseRequest(@PathVariable String id){
+        if (rootTestCaseService.deleteTestCase(id)) {
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping
-    private ResponseEntity<?> bulkDeleteTestCases(@RequestBody List<String> ids){
-        List<String> existingIds = rootTestCaseRepository.findAllById(ids)
-                        .stream()
-                                .map(RootTestCaseEntity::getId)
-                                        .toList();
-        List<String> nonExistingIds = ids.stream()
-                        .filter(id -> !existingIds.contains(id))
-                                .toList();
+    private ResponseEntity<HashMap<String, List<String>>> handleBulkDeleteTestCasesRequest(@RequestBody List<String> ids){
+        return ResponseEntity.ok(rootTestCaseService.bulkDeleteTestCases(ids));
 
-        rootTestCaseRepository.deleteAllByIdInBatch(existingIds);
-
-        HashMap<String, List<String>> responseBody = new HashMap<>();
-        responseBody.put("successfullyDeletedIds", existingIds);
-        responseBody.put("nonExistingIds", nonExistingIds);
-
-        if (nonExistingIds.isEmpty()){
-            return new ResponseEntity<>(responseBody, HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>(responseBody, HttpStatus.OK);
-        }
     }
 }
