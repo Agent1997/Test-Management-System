@@ -1,5 +1,6 @@
 package com.agent1997.tms.roottestcase;
 
+import com.agent1997.tms.exceptions.GenericErrorResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,10 +29,11 @@ public class RootTestCaseController {
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<RootTestCaseEntity> getTestCase(@PathVariable String id){
-        Optional<RootTestCaseEntity> testCaseQueryResult = rootTestCaseRepository.findById(id);
-        return testCaseQueryResult.map(rootTestCaseEntity -> new ResponseEntity<>(rootTestCaseEntity,
-                HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    private ResponseEntity<?> handleGetTestCaseRequest(@PathVariable String id){
+        Optional<RootTestCaseEntity> testCaseQueryResult = rootTestCaseService.getTestCase(id);
+        if (testCaseQueryResult.isPresent()) return ResponseEntity.ok(testCaseQueryResult.get());
+        else return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(new GenericErrorResponse(HttpStatus.NOT_FOUND,
+                String.format("Test case with id: %s is not found.",id),null));
     }
 
     @GetMapping

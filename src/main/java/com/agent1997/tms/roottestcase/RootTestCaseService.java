@@ -4,7 +4,11 @@ import com.agent1997.tms.exceptions.DatabaseException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -27,5 +31,9 @@ public class RootTestCaseService {
             log.error("Failed to create test case: {}", rootTestCaseEntity, e);
             throw new DatabaseException("Failed to create a test case.", e);
         }
+    }
+
+    public Optional<RootTestCaseEntity> getTestCase(String id){
+        return rootTestCaseRepository.findById(id);
     }
 }

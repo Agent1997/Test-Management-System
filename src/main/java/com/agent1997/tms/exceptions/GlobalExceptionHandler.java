@@ -45,6 +45,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new BadRequestErrorResponse(logId));
     }
-
 //    TODO add handler for database exception
 }
