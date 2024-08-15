@@ -1,13 +1,17 @@
 package com.agent1997.tms.roottestcase;
 
+import com.agent1997.tms.exceptions.GenericErrorResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -15,25 +19,45 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RootTestCaseController {
 
-    private final RootTestCaseRepository rootTestCaseRepository;
+    private final RootTestCaseService rootTestCaseService;
 
     @PostMapping
-    private ResponseEntity<RootTestCaseEntity> createATestCase(@RequestBody RootTestCaseRequestDTO rootTestCaseRequestDTO){
-        RootTestCaseEntity rootTestCaseEntity = new RootTestCaseEntity();
-        rootTestCaseEntity.setTitle(rootTestCaseRequestDTO.getTitle());
-        rootTestCaseEntity.setDescription(rootTestCaseRequestDTO.getDescription());
-        rootTestCaseEntity.setTestSteps(rootTestCaseRequestDTO.getTestSteps());
-        rootTestCaseEntity.setExpectedBehavior(rootTestCaseRequestDTO.getExpectedBehavior());
-        rootTestCaseEntity.setNotes(rootTestCaseRequestDTO.getNotes());
-        RootTestCaseEntity saveRootTestCase = rootTestCaseRepository.save(rootTestCaseEntity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saveRootTestCase);
+    private ResponseEntity<RootTestCaseEntity> handleCreateATestCaseRequest(@RequestBody RootTestCaseRequestDTO rootTestCaseRequestDTO){
+        RootTestCaseEntity createdTestCase = rootTestCaseService.createATestCase(rootTestCaseRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTestCase);
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<RootTestCaseEntity> getTestCase(@PathVariable String id){
-        Optional<RootTestCaseEntity> testCaseQueryResult = rootTestCaseRepository.findById(id);
-        return testCaseQueryResult.map(rootTestCaseEntity -> new ResponseEntity<>(rootTestCaseEntity,
-                HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    private ResponseEntity<?> handleGetTestCaseRequest(@PathVariable String id){
+        Optional<RootTestCaseEntity> testCaseQueryResult = rootTestCaseService.getTestCase(id);
+        if (testCaseQueryResult.isPresent()) return ResponseEntity.ok(testCaseQueryResult.get());
+        else return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(new GenericErrorResponse(HttpStatus.NOT_FOUND,
+                String.format("Test case with id: %s is not found.",id),null));
     }
 
+    @GetMapping
+    private Page<RootTestCaseEntity> handleGetPageableTestCasesRequest(Pageable pageable){
+        return rootTestCaseService.getPageableTestCases(pageable);
+    }
+
+    @PutMapping("/{id}")
+    private ResponseEntity<RootTestCaseEntity> handleUpdateTestCaseRequest(@PathVariable String id, @RequestBody RootTestCaseRequestDTO rootTestCaseRequestDTO){
+        RootTestCaseEntity updatedTestCase = rootTestCaseService.updateTestCase(id, rootTestCaseRequestDTO);
+        return ResponseEntity.ok(updatedTestCase);
+    }
+
+    @DeleteMapping("/{id}")
+    private ResponseEntity<Void> handleDeleteTestCaseRequest(@PathVariable String id){
+        if (rootTestCaseService.deleteTestCase(id)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping
+    private ResponseEntity<HashMap<String, List<String>>> handleBulkDeleteTestCasesRequest(@RequestBody List<String> ids){
+        return ResponseEntity.ok(rootTestCaseService.bulkDeleteTestCases(ids));
+
+    }
 }
